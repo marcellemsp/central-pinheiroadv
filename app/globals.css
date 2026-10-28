@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens do design system Pinheiro Advogados, em canais RGB para o Tailwind. */
+:root {
+  --surface-100: 250 251 250;
+  --surface-200: 255 255 255;
+  --surface-mist: 231 239 238;
+  --brand-petroleo: 15 59 61;
+  --brand-bordo: 110 31 43;
+  --ink: 23 33 31;
+  --ink-muted: 83 96 93;
+  --ink-heading: 15 59 61;
+  --on-brand: 255 255 255;
+  --on-brand-muted: 184 211 209;
+  --line: 225 231 230;
+  --line-strong: 157 181 179;
+  --pattern-tile: 26 78 80;
+  --pattern-accent: 94 42 53;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-100: 13 21 20;
+    --surface-200: 20 33 32;
+    --surface-mist: 26 43 42;
+    --brand-petroleo: 31 90 92;
+    --brand-bordo: 217 121 138;
+    --ink: 230 238 236;
+    --ink-muted: 159 176 172;
+    --ink-heading: 230 238 236;
+    --on-brand: 255 255 255;
+    --on-brand-muted: 184 211 209;
+    --line: 36 48 47;
+    --line-strong: 63 85 83;
+    --pattern-tile: 42 106 108;
+    --pattern-accent: 122 52 67;
+    color-scheme: dark;
+  }
+}
+
+html,
+body {
+  background: rgb(var(--surface-100));
+  color: rgb(var(--ink));
+}
+
+/* Rótulo curto em caixa alta, sempre em bordô (estilo "label" do design system). */
+.label {
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--brand-bordo));
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--brand-bordo));
+  outline-offset: 2px;
+}
