@@ -9,7 +9,7 @@ Sistema interno do Pinheiro Advogados: pendências, prazos, clientes e casos, co
 3. Copie `.env.local.example` para `.env.local` e preencha com a URL e a chave anônima do projeto (Project Settings > API).
 4. `npm install` e `npm run dev`.
 
-No Vercel, as mesmas três variáveis vão em Settings > Environment Variables.
+Publicada no Vercel (projeto `central-pinheiroadv`), com deploy automático a cada envio para a branch `main`. As três variáveis já estão em Settings > Environment Variables.
 
 ## O que já existe
 
