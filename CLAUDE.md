@@ -38,7 +38,9 @@ Sem abrir a Central por `INATIVIDADE_DIAS` dias (padrão 7), o middleware encerr
 
 Login principal por e-mail e senha (`/senha` define a senha de quem já está logado). O link mágico fica como alternativa para o primeiro acesso e para senha esquecida. Não dá para usar código de 6 dígitos no e-mail enquanto o Supabase estiver sem SMTP próprio, porque os modelos padrão não podem ser editados.
 
-A rota `/api/mcp` (do Neo, ainda por fazer) fica fora do middleware e terá autenticação própria.
+## Neo (servidor MCP)
+
+`app/api/mcp/route.ts` é o servidor MCP do Neo, fora do middleware. Ele exige a chave `NEO_CHAVE` (no Vercel, como variável sensível) na URL (`?k=`) ou no cabeçalho `Authorization: Bearer`, e passa a mesma chave às funções `public.neo_*` do banco, que conferem o hash SHA-256 em `privado.neo_chaves`. Essas funções são as únicas portas do Neo para os dados: resumo do dia, listar, criar e atualizar pendências. Para trocar a chave, gere uma nova, grave o hash em `privado.neo_chaves`, apague o antigo e atualize a variável no Vercel e a URL do conector no Claude.
 
 Projeto Supabase: `central-pinheiroadv` (ref `goapbhplemhylhsbdred`, região São Paulo), na organização Pinheiro Advogados.
 
