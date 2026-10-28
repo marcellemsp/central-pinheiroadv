@@ -10,6 +10,7 @@ const ITENS = [
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
+      <div className="bg-petroleo" style={{ height: "env(safe-area-inset-top)" }} />
       <div className="h-1 bg-bordo" />
       <header className="bg-petroleo text-on-brand">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">

@@ -4,12 +4,20 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Central PinheiroAdv", template: "%s · Central PinheiroAdv" },
   description: "Sistema interno do Pinheiro Advogados",
+  applicationName: "Central PinheiroAdv",
+  appleWebApp: { capable: true, title: "Central", statusBarStyle: "black-translucent" },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#0F3B3D",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

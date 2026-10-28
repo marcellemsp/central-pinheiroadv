@@ -1,11 +1,15 @@
 import RaizMark from "@/components/RaizMark";
-import { enviarLink } from "./actions";
+import { enviarLink, verificarCodigo } from "./actions";
 
 export const metadata = { title: "Entrar" };
 
-export default function LoginPage({ searchParams }: { searchParams: { enviado?: string; erro?: string } }) {
+type Busca = { enviado?: string; erro?: string; email?: string };
+
+export default function LoginPage({ searchParams }: { searchParams: Busca }) {
+  const enviado = !!searchParams.enviado && !!searchParams.email;
   return (
     <div className="min-h-screen flex flex-col">
+      <div className="bg-petroleo" style={{ height: "env(safe-area-inset-top)" }} />
       <div className="h-1 bg-bordo" />
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-sm flex flex-col gap-6">
@@ -17,11 +21,33 @@ export default function LoginPage({ searchParams }: { searchParams: { enviado?: 
             </div>
           </div>
 
-          {searchParams.enviado ? (
-            <div className="border border-line bg-surface-200 rounded-md p-5">
-              <p className="label mb-2">Link enviado</p>
-              <p className="text-ink-muted">Confira o seu e-mail e toque no link para entrar.</p>
-            </div>
+          {enviado ? (
+            <form action={verificarCodigo} className="flex flex-col gap-4">
+              <p className="text-ink-muted leading-relaxed">
+                Enviamos um e-mail para <strong className="text-ink">{searchParams.email}</strong>. Toque no link ou
+                digite aqui o código de 6 dígitos.
+              </p>
+              <input type="hidden" name="email" value={searchParams.email} />
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-semibold">Código</span>
+                <input
+                  name="codigo"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9 ]*"
+                  maxLength={8}
+                  required
+                  className="h-12 px-3 rounded-sm border border-line-strong bg-surface-200 text-ink text-xl tracking-[0.4em]"
+                />
+              </label>
+              {searchParams.erro && <p className="text-sm text-bordo">{searchParams.erro}</p>}
+              <button type="submit" className="h-11 rounded-sm bg-petroleo text-on-brand font-semibold">
+                Entrar
+              </button>
+              <a href="/login" className="text-sm text-ink-muted text-center">
+                Usar outro e-mail ou pedir novo código
+              </a>
+            </form>
           ) : (
             <form action={enviarLink} className="flex flex-col gap-4">
               <label className="flex flex-col gap-2">
@@ -36,7 +62,7 @@ export default function LoginPage({ searchParams }: { searchParams: { enviado?: 
               </label>
               {searchParams.erro && <p className="text-sm text-bordo">{searchParams.erro}</p>}
               <button type="submit" className="h-11 rounded-sm bg-petroleo text-on-brand font-semibold">
-                Receber link de acesso
+                Receber acesso por e-mail
               </button>
             </form>
           )}
