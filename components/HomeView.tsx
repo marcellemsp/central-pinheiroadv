@@ -211,7 +211,7 @@ function HomeCoord({
 
           <div className="mb-2">
             <h1 className="text-[26px]">{saudacao}, {primeiroNome}</h1>
-            <p className="text-xs capitalize" style={{ color: "var(--text-secondary)" }}>
+            <p className="text-xs first-letter:uppercase" style={{ color: "var(--text-secondary)" }}>
               {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>

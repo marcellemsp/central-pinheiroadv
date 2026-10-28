@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Inter+Tight:wght@400;500;600;700&display=swap"
         />
-        <style>{`:root{--font-serif:"Source Serif 4";--font-sans:"Inter Tight";}`}</style>
+        <style dangerouslySetInnerHTML={{ __html: `:root{--font-serif:"Source Serif 4";--font-sans:"Inter Tight";}` }} />
       </head>
       <body className="font-sans antialiased">
         {children}
