@@ -27,6 +27,7 @@ export async function criarPendencia(formData: FormData) {
     });
   if (error) throw new Error(error.message);
   revalidatePath("/pendencias");
+  revalidatePath("/prazos");
   revalidatePath("/");
 }
 

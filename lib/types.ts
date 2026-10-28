@@ -35,4 +35,5 @@ export type Pendencia = {
   atualizado_em: string;
   concluido_em: string | null;
   cliente?: Pick<Cliente, "id" | "nome"> | null;
+  caso?: Pick<Caso, "id" | "titulo" | "numero_processo"> | null;
 };

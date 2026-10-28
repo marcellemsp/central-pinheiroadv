@@ -6,6 +6,9 @@ import { sair } from "@/app/(central)/sair/actions";
 const ITENS = [
   { href: "/", rotulo: "Início" },
   { href: "/pendencias", rotulo: "Pendências" },
+  { href: "/prazos", rotulo: "Prazos" },
+  { href: "/clientes", rotulo: "Clientes" },
+  { href: "/casos", rotulo: "Casos" },
 ];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {

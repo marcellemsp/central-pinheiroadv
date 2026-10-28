@@ -15,8 +15,11 @@ Publicada no Vercel (projeto `central-pinheiroadv`), com deploy automático a ca
 
 - Início com os prazos de hoje, os vencidos e os da semana
 - Pendências em tabela e em quadro, com criação, mudança de situação e conclusão
-- Login por link mágico, restrito a um e-mail
+- Prazos com calculadora judicial (CPC, dias úteis, suspensão de 20/12 a 20/01, DJe, feriados do TJRJ e da Justiça Federal) e administrativa (Decreto 70.235/1972)
+- Clientes e casos, cada um com sua página, pendências ligadas e dados editáveis
+- Login por e-mail e senha, com link por e-mail como alternativa
+- Neo como conector MCP (`/api/mcp`); conversa por voz dentro da Central fica para depois
 
 ## Próximos passos
 
-Prazos com calculadora, calendário, clientes, casos e processos, e o servidor MCP do Neo.
+Neo por voz (Siri no iPhone e escuta da palavra "Neo" no Mac Mini, com modelo local), calendário e relatórios.
