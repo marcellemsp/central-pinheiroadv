@@ -4,7 +4,7 @@ Sistema interno do Pinheiro Advogados: pendências, prazos, clientes e casos, co
 
 ## Primeira configuração
 
-1. Crie um projeto no Supabase e rode `sql/001_inicial.sql` no SQL Editor.
+1. Projeto Supabase já criado (`central-pinheiroadv`, região São Paulo), com `sql/001_inicial.sql` e `sql/002_funcao_privada.sql` aplicados.
 2. Em Authentication > URL Configuration, cadastre o endereço da Central (e `http://localhost:3000` para testes) como Site URL e Redirect URL, com `/auth/callback`.
 3. Copie `.env.local.example` para `.env.local` e preencha com a URL e a chave anônima do projeto (Project Settings > API).
 4. `npm install` e `npm run dev`.

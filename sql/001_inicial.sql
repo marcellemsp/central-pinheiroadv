@@ -50,7 +50,7 @@ create index if not exists pendencias_prazo_idx on public.pendencias (prazo) whe
 
 -- Mantém atualizado_em e concluido_em coerentes com o bucket.
 create or replace function public.tg_pendencias_datas()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = '' as $$
 begin
   new.atualizado_em := now();
   if new.bucket = 'concluido' and (tg_op = 'INSERT' or old.bucket <> 'concluido') then
@@ -68,18 +68,43 @@ create trigger pendencias_datas
   for each row execute function public.tg_pendencias_datas();
 
 -- Segurança ------------------------------------------------------------------
--- Só usuários autenticados acessam. O controle de quem pode entrar é feito
--- pelo ALLOWED_EMAIL na aplicação e pela lista de usuários do Supabase Auth.
+-- Estar logado não basta: só e-mails da lista abaixo leem e gravam dados.
+-- Assim, mesmo que alguém crie uma conta no Supabase Auth, não vê nada.
+create table if not exists public.usuarios_autorizados (
+  email text primary key,
+  nome text,
+  criado_em timestamptz not null default now()
+);
+alter table public.usuarios_autorizados enable row level security;
+-- Sem políticas: a lista só é editada pelo painel do Supabase.
+
+insert into public.usuarios_autorizados (email, nome)
+values ('marcellemspinheiro@gmail.com', 'Marcelle Pinheiro')
+on conflict (email) do nothing;
+
+create or replace function public.usuario_autorizado()
+returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (
+    select 1 from public.usuarios_autorizados
+    where email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
+$$;
+revoke all on function public.usuario_autorizado() from public, anon;
+grant execute on function public.usuario_autorizado() to authenticated;
+
 alter table public.clientes enable row level security;
 alter table public.casos enable row level security;
 alter table public.pendencias enable row level security;
 
-drop policy if exists "autenticados" on public.clientes;
-create policy "autenticados" on public.clientes for all to authenticated using (true) with check (true);
-drop policy if exists "autenticados" on public.casos;
-create policy "autenticados" on public.casos for all to authenticated using (true) with check (true);
-drop policy if exists "autenticados" on public.pendencias;
-create policy "autenticados" on public.pendencias for all to authenticated using (true) with check (true);
+drop policy if exists "autorizados" on public.clientes;
+create policy "autorizados" on public.clientes for all to authenticated
+  using ((select public.usuario_autorizado())) with check ((select public.usuario_autorizado()));
+drop policy if exists "autorizados" on public.casos;
+create policy "autorizados" on public.casos for all to authenticated
+  using ((select public.usuario_autorizado())) with check ((select public.usuario_autorizado()));
+drop policy if exists "autorizados" on public.pendencias;
+create policy "autorizados" on public.pendencias for all to authenticated
+  using ((select public.usuario_autorizado())) with check ((select public.usuario_autorizado()));
 
 -- Pendências iniciais (vindas das notas do iPhone, 27/10/2026) ----------------
 insert into public.pendencias (titulo, bucket) values
