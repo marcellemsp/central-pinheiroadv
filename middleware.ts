@@ -37,8 +37,35 @@ export async function middleware(request: NextRequest) {
     destino.search = "";
     return NextResponse.redirect(destino);
   }
+
+  // Encerra a sessão depois de um tempo sem abrir a Central (padrão: 7 dias),
+  // para o caso de o celular ou o computador ficar com outra pessoa.
+  if (autorizado) {
+    const dias = Number(process.env.INATIVIDADE_DIAS ?? "7");
+    const agora = Date.now();
+    const ultimo = Number(request.cookies.get(COOKIE_ULTIMO_ACESSO)?.value ?? "0");
+    if (ultimo && dias > 0 && agora - ultimo > dias * 86_400_000) {
+      await supabase.auth.signOut();
+      const destino = request.nextUrl.clone();
+      destino.pathname = "/login";
+      destino.search = "?erro=" + encodeURIComponent("Sessão encerrada por inatividade. Entre de novo.");
+      const saida = NextResponse.redirect(destino);
+      response.cookies.getAll().forEach((c) => saida.cookies.set(c));
+      saida.cookies.delete(COOKIE_ULTIMO_ACESSO);
+      return saida;
+    }
+    response.cookies.set(COOKIE_ULTIMO_ACESSO, String(agora), {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 400 * 86_400,
+    });
+  }
   return response;
 }
+
+const COOKIE_ULTIMO_ACESSO = "pa_ultimo_acesso";
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|icon.svg|favicon.ico|manifest.webmanifest|icons/|api/mcp).*)"],

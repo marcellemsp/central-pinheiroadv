@@ -34,6 +34,8 @@ Regras de marca que valem no código: o bordô entra em pequenas doses (faixa fi
 
 Duas travas independentes. Na aplicação, `middleware.ts` exige sessão e, se `ALLOWED_EMAIL` estiver definido, só deixa entrar esse e-mail. No banco, as políticas de RLS só liberam dados para e-mails cadastrados na tabela `usuarios_autorizados`, checados pela função `privado.usuario_autorizado()`. Estar logado não basta. Para dar acesso a alguém, inclua o e-mail nessa tabela pelo painel do Supabase.
 
+Sem abrir a Central por `INATIVIDADE_DIAS` dias (padrão 7), o middleware encerra a sessão; o último acesso fica no cookie `pa_ultimo_acesso`. O botão Sair fica no cabeçalho.
+
 A rota `/api/mcp` (do Neo, ainda por fazer) fica fora do middleware e terá autenticação própria.
 
 Projeto Supabase: `central-pinheiroadv` (ref `goapbhplemhylhsbdred`, região São Paulo), na organização Pinheiro Advogados.

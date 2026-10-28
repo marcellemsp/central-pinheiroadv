@@ -1,6 +1,7 @@
 import Link from "next/link";
 import RaizMark from "./RaizMark";
 import NavLink from "./NavLink";
+import { sair } from "@/app/(central)/sair/actions";
 
 const ITENS = [
   { href: "/", rotulo: "Início" },
@@ -27,6 +28,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 {i.rotulo}
               </NavLink>
             ))}
+            <form action={sair} className="ml-2 pl-3 border-l border-on-brand-muted/30">
+              <button type="submit" className="px-3 py-2 rounded-sm text-sm text-on-brand-muted hover:text-on-brand">
+                Sair
+              </button>
+            </form>
           </nav>
         </div>
       </header>
