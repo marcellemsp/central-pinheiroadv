@@ -4,45 +4,44 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-function erro(msg: string, email?: string): never {
+function erro(msg: string, modo?: string): never {
   const q = new URLSearchParams({ erro: msg });
-  if (email) {
-    q.set("enviado", "1");
-    q.set("email", email);
-  }
+  if (modo) q.set("modo", modo);
   redirect("/login?" + q.toString());
 }
 
-export async function enviarLink(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+function checarEmail(email: string, modo?: string) {
   const permitido = process.env.ALLOWED_EMAIL?.toLowerCase();
-  if (!email) erro("Informe o e-mail.");
-  if (permitido && email !== permitido) erro("Este e-mail não tem acesso à Central.");
+  if (!email) erro("Informe o e-mail.", modo);
+  if (permitido && email !== permitido) erro("Este e-mail não tem acesso à Central.", modo);
+}
 
+// Entrada principal, inclusive no app instalado no iPhone, que não recebe
+// a sessão aberta pelo link do e-mail no Safari.
+export async function entrarComSenha(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const senha = String(formData.get("senha") ?? "");
+  checarEmail(email);
   const supabase = createClient();
   if (!supabase) erro("O banco de dados ainda não está configurado.");
+  const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+  if (error) erro("E-mail ou senha incorretos.");
+  redirect("/");
+}
 
+// Link mágico por e-mail: serve para o primeiro acesso e para quando a
+// senha for esquecida (depois de entrar, defina uma nova em Senha).
+export async function enviarLink(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  checarEmail(email, "link");
+  const supabase = createClient();
+  if (!supabase) erro("O banco de dados ainda não está configurado.", "link");
   const h = headers();
   const origem = h.get("origin") ?? `https://${h.get("host")}`;
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origem}/auth/callback`, shouldCreateUser: true },
+    options: { emailRedirectTo: `${origem}/auth/callback` },
   });
-  if (error) erro("Não foi possível enviar o e-mail. Tente de novo em um minuto.");
-  redirect("/login?" + new URLSearchParams({ enviado: "1", email }).toString());
-}
-
-// Entrada pelo código de 6 dígitos do e-mail. É o caminho usado no app
-// instalado no iPhone, que não recebe a sessão aberta pelo link no Safari.
-export async function verificarCodigo(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const token = String(formData.get("codigo") ?? "").replace(/\D/g, "");
-  if (!email || token.length < 6) erro("Digite o código que chegou no e-mail.", email);
-
-  const supabase = createClient();
-  if (!supabase) erro("O banco de dados ainda não está configurado.");
-
-  const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-  if (error) erro("Código inválido ou vencido. Peça um novo.", email);
-  redirect("/");
+  if (error) erro("Não foi possível enviar o e-mail. Tente de novo em um minuto.", "link");
+  redirect("/login?enviado=1");
 }

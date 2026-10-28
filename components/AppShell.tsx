@@ -28,7 +28,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 {i.rotulo}
               </NavLink>
             ))}
-            <form action={sair} className="ml-2 pl-3 border-l border-on-brand-muted/30">
+            <span className="ml-2 pl-2 border-l border-on-brand-muted/30" />
+            <NavLink href="/senha">Senha</NavLink>
+            <form action={sair}>
               <button type="submit" className="px-3 py-2 rounded-sm text-sm text-on-brand-muted hover:text-on-brand">
                 Sair
               </button>

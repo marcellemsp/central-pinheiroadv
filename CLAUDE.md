@@ -36,6 +36,8 @@ Duas travas independentes. Na aplicação, `middleware.ts` exige sessão e, se `
 
 Sem abrir a Central por `INATIVIDADE_DIAS` dias (padrão 7), o middleware encerra a sessão; o último acesso fica no cookie `pa_ultimo_acesso`. O botão Sair fica no cabeçalho.
 
+Login principal por e-mail e senha (`/senha` define a senha de quem já está logado). O link mágico fica como alternativa para o primeiro acesso e para senha esquecida. Não dá para usar código de 6 dígitos no e-mail enquanto o Supabase estiver sem SMTP próprio, porque os modelos padrão não podem ser editados.
+
 A rota `/api/mcp` (do Neo, ainda por fazer) fica fora do middleware e terá autenticação própria.
 
 Projeto Supabase: `central-pinheiroadv` (ref `goapbhplemhylhsbdred`, região São Paulo), na organização Pinheiro Advogados.
