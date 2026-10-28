@@ -170,7 +170,7 @@ export default function AppShell({ userEmail, userName, children }: { userEmail:
         <aside className="hidden md:block shrink-0 overflow-y-auto py-4 bg-surface-200 border-r border-line" style={{ width: 228 }}>
           {navList}
         </aside>
-        <main className="flex-1 overflow-y-auto pb-[84px] md:pb-0">{children}</main>
+        <main className="flex-1 overflow-y-auto pb-[84px] md:pb-0"><div className="conteudo mx-auto w-full">{children}</div></main>
       </div>
 
       {/* Celular: barra inferior + painel "Mais" */}

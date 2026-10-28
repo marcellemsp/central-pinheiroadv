@@ -89,7 +89,7 @@ export default function ClientesListView({ empresas, erro }: { empresas: Empresa
   const fmt = (d: string) => new Date(d).toLocaleDateString("pt-BR");
 
   return (
-    <div className="p-6 max-w-[1400px] relative">
+    <div className="p-6 relative">
       <div className="flex items-end justify-between mb-4">
         <div>
           <h1 className="text-[26px]">Clientes</h1>

@@ -94,7 +94,7 @@ export default function GrupoDetalheView({ grupoId }: { grupoId: string }) {
   const b = grupo.banca ? BANCAS[grupo.banca as string] : null;
 
   return (
-    <div className="p-6 max-w-[1400px] relative">
+    <div className="p-6 relative">
       <div className="text-[11px] flex items-center gap-1.5 mb-3" style={{ color: "var(--text-muted)" }}>
         <Link href="/clientes" style={{ color: "var(--acao)" }}>Clientes</Link>
         <span>&rsaquo;</span>

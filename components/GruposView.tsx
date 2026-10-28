@@ -97,7 +97,7 @@ export default function GruposView() {
   const totalCasos = resumo.reduce((s, r) => s + r.total, 0);
 
   return (
-    <div className="p-6 max-w-[1400px] relative">
+    <div className="p-6 relative">
       <div className="flex items-end justify-between mb-4">
         <div>
           <h1 className="text-[26px]">Clientes</h1>
