@@ -1,25 +1,23 @@
 # Central PinheiroAdv
 
-Sistema interno do Pinheiro Advogados: pendências, prazos, clientes e casos, com o Neo como assistente.
+Sistema interno do Pinheiro Advogados: clientes, casos por área, pendências com revisão, prazos, publicações, acompanhamentos, certidões e gastos de diligência, com o Neo como assistente.
 
-## Primeira configuração
+## O que existe
 
-1. Projeto Supabase já criado (`central-pinheiroadv`, região São Paulo), com `sql/001_inicial.sql` e `sql/002_funcao_privada.sql` aplicados.
-2. Em Authentication > URL Configuration, cadastre o endereço da Central (e `http://localhost:3000` para testes) como Site URL e Redirect URL, com `/auth/callback`.
-3. Copie `.env.local.example` para `.env.local` e preencha com a URL e a chave anônima do projeto (Project Settings > API).
-4. `npm install` e `npm run dev`.
+- **Início**: o que espera revisão, prazos de hoje e da semana, publicações do dia e consultas atrasadas
+- **Clientes e grupos**: dados, contatos, documentos, certidões, rotinas recorrentes e casos de cada cliente
+- **Casos** nas áreas Contencioso, Consultoria, Incentivos, Transação e Fiscalização, cada uma com seus campos e etapas, andamentos, pendências e acervo de documentos
+- **Pendências**: peças com cadeia de revisão e versões, memoriais, diligências, julgamentos, despachos, rolantes, encadeadas e recorrentes
+- **Prazos e calendário**, com calculadora no banco (CPC em dias úteis, DJEN, dias corridos e Decreto 70.235) usando feriados e suspensões confirmados
+- **Publicações**: importação, destinação, aprovação e geração de andamento e pendência
+- **Acompanhamentos** diários ou semanais de processos, **Certidões** com aviso de vencimento, **Gastos** com reembolso em lote
+- **Configurações**: feriados e suspensões, providências e prazos; exclusão com aprovação
+- **Neo** como conector MCP (`/api/mcp`); voz e conversa dentro da Central ficam para depois
 
-Publicada no Vercel (projeto `central-pinheiroadv`), com deploy automático a cada envio para a branch `main`. As três variáveis já estão em Settings > Environment Variables.
+## Configuração
 
-## O que já existe
+1. Projeto Supabase `central-pinheiroadv` (São Paulo) com `sql/001` a `sql/006` aplicados, em ordem.
+2. No Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `ALLOWED_EMAIL`, `NEO_CHAVE` (sensível) e, quando o Neo falar dentro da Central, `ANTHROPIC_API_KEY`.
+3. Os feriados de 2026 a 2028 já foram gravados. Para outro ano, rode `select pa_semear_feriados(AAAA)` logado, ou importe o arquivo da rotina em Configurações › Feriados e suspensões.
 
-- Início com os prazos de hoje, os vencidos e os da semana
-- Pendências em tabela e em quadro, com criação, mudança de situação e conclusão
-- Prazos com calculadora judicial (CPC, dias úteis, suspensão de 20/12 a 20/01, DJe, feriados do TJRJ e da Justiça Federal) e administrativa (Decreto 70.235/1972)
-- Clientes e casos, cada um com sua página, pendências ligadas e dados editáveis
-- Login por e-mail e senha, com link por e-mail como alternativa
-- Neo como conector MCP (`/api/mcp`); conversa por voz dentro da Central fica para depois
-
-## Próximos passos
-
-Neo por voz (Siri no iPhone e escuta da palavra "Neo" no Mac Mini, com modelo local), calendário e relatórios.
+`npm install` e `npm run dev` para rodar localmente, com `.env.local` copiado de `.env.local.example`.

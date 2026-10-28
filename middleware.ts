@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const ROTAS_PUBLICAS = ["/login", "/auth"];
+// /definir-senha abre a partir do link de convite ou de recuperação, antes de existir sessão.
+const ROTAS_PUBLICAS = ["/login", "/auth", "/definir-senha"];
 
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -68,5 +69,5 @@ export async function middleware(request: NextRequest) {
 const COOKIE_ULTIMO_ACESSO = "pa_ultimo_acesso";
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|icon.svg|favicon.ico|manifest.webmanifest|icons/|api/mcp).*)"],
+  matcher: ["/((?!_next/static|_next/image|icon.svg|favicon.ico|manifest.webmanifest|icons/|sw.js|offline.html|api/mcp).*)"],
 };

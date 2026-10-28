@@ -7,7 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Central",
     description: "Sistema interno do Pinheiro Advogados",
     lang: "pt-BR",
-    start_url: "/",
+    start_url: "/home",
+    id: "/",
     scope: "/",
     display: "standalone",
     orientation: "any",
@@ -20,6 +21,8 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       { name: "Pendências", short_name: "Pendências", url: "/pendencias" },
+      { name: "Prazos", short_name: "Prazos", url: "/prazos" },
+      { name: "Revisão", short_name: "Revisão", url: "/revisao" },
     ],
   };
 }

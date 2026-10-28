@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase-server";
 
 function erro(msg: string, modo?: string): never {
   const q = new URLSearchParams({ erro: msg });

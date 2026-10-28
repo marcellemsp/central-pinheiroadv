@@ -1,39 +1,31 @@
-import type { BucketId } from "./buckets";
+// Tipos compartilhados da Central PinheiroAdv. Os tipos de cada módulo (casos, pendências,
+// publicações, certidões, gastos…) ficam junto dos componentes e de lib/*.ts.
 
-export type Cliente = {
-  id: string;
-  nome: string;
-  documento: string | null;
-  contato: string | null;
-  observacoes: string | null;
-  criado_em: string;
-};
+export type Papel = "coordenador" | "advogado" | "estagiario" | "externo";
 
-export type Caso = {
+export interface Usuario {
   id: string;
-  cliente_id: string | null;
-  titulo: string;
-  numero_processo: string | null;
-  orgao: string | null;
-  area: string | null;
-  status: string;
-  criado_em: string;
-};
-
-export type Pendencia = {
-  id: string;
-  titulo: string;
-  descricao: string | null;
-  cliente_id: string | null;
-  caso_id: string | null;
-  bucket: BucketId;
-  prazo: string | null; // data no formato AAAA-MM-DD
-  prazo_fatal: boolean;
-  responsavel: string;
-  ordem: number;
+  email: string;
+  nome_completo: string | null;
+  papel: Papel;
+  funcao: string | null;
+  banca: string | null;
+  oab: string | null;
+  ativo: boolean;
   criado_em: string;
   atualizado_em: string;
-  concluido_em: string | null;
-  cliente?: Pick<Cliente, "id" | "nome"> | null;
-  caso?: Pick<Caso, "id" | "titulo" | "numero_processo"> | null;
-};
+}
+
+export type NotificacaoTipo = "atribuicao" | "revisao" | "acompanhamento" | "certidao" | "sistema";
+
+export interface Notificacao {
+  id: string;
+  usuario_id: string;
+  tipo: NotificacaoTipo;
+  titulo: string;
+  mensagem: string | null;
+  pendencia_id: string | null;
+  lida: boolean;
+  lida_em: string | null;
+  criado_em: string;
+}

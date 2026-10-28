@@ -1,8 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase-server";
 import { FERRAMENTAS_NEO, executarFerramenta } from "@/lib/neo/ferramentas";
-import { hojeSP } from "@/lib/pendencias";
+import { hojeSP } from "@/lib/neo/situacoes";
 
 // Conversa com o Neo dentro da Central (texto e voz).
 // Precisa de ANTHROPIC_API_KEY no Vercel. Modelo em NEO_MODELO.
@@ -27,7 +27,7 @@ Hoje é ${hoje} (${hojeSP()}), fuso de São Paulo.
 
 Jeito de falar: português do Brasil, direto, sóbrio e eficiente, sem floreios e sem emoji. Respostas curtas, que funcionem lidas em voz alta: frases corridas, poucas listas, nada de tabelas. Nunca use "e/ou" nem plurais com "(s)".
 
-Pendências andam pelas situações triagem, producao (em produção), aguardando, protocolar e concluido. Use as ferramentas para consultar e alterar as pendências da Central. Para concluir ou mudar algo citado pelo nome, primeiro ache o id com listar_pendencias usando busca; se houver mais de uma parecida, pergunte qual antes de alterar. Depois de alterar, confirme em uma frase o que foi feito.
+Pendências andam pelas situações a_fazer, em_elaboracao, revisao_pendente, devolvida, pronta_protocolar, aguardando_cliente, aguardando (espera a anterior), bloqueada e concluida. Cada pendência pode estar ligada a um cliente e a um caso. Use as ferramentas para consultar e alterar as pendências da Central. Para concluir ou mudar algo citado pelo nome, primeiro ache o id com listar_pendencias usando busca; se houver mais de uma parecida, pergunte qual antes de alterar. Depois de alterar, confirme em uma frase o que foi feito.
 
 Quando ela disser "bom dia" ou pedir o resumo, use resumo_do_dia e responda com vencidas e prazos de hoje primeiro, depois a semana e as sem prazo, e termine com uma sugestão de por onde começar se houver algo claramente mais urgente.
 
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
           .join("\n")
           .trim();
         if (alterou) {
-          revalidatePath("/");
+          revalidatePath("/home");
           revalidatePath("/pendencias");
         }
         return Response.json({ resposta: texto || "Feito.", alterou });
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
         if (bloco.type !== "tool_use") continue;
         if (bloco.name !== "resumo_do_dia" && bloco.name !== "listar_pendencias") alterou = true;
         try {
-          const dados = await executarFerramenta(sb, bloco.name, bloco.input);
+          const dados = await executarFerramenta(bloco.name, bloco.input);
           resultados.push({ type: "tool_result", tool_use_id: bloco.id, content: JSON.stringify(dados) });
         } catch (e) {
           resultados.push({

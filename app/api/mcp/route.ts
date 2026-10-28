@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqual } from "node:crypto";
-import { BUCKET_IDS } from "@/lib/buckets";
+import { SITUACAO_IDS, DESCRICAO_SITUACOES } from "@/lib/neo/situacoes";
 
 // Servidor MCP do Neo (transporte HTTP, respostas JSON).
 // Conector no Claude: https://central-pinheiroadv.vercel.app/api/mcp?k=<NEO_CHAVE>
@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 
 type JsonRpc = { jsonrpc: "2.0"; id?: string | number | null; method: string; params?: any };
 
-const SITUACOES = BUCKET_IDS as string[];
+const SITUACOES = SITUACAO_IDS;
 const DATA = { type: "string", description: "Data no formato AAAA-MM-DD", pattern: "^\\d{4}-\\d{2}-\\d{2}$" };
 
 const FERRAMENTAS = [
@@ -30,8 +30,8 @@ const FERRAMENTAS = [
     inputSchema: {
       type: "object",
       properties: {
-        situacao: { type: "string", enum: SITUACOES },
-        busca: { type: "string", description: "Texto a procurar no título ou no cliente" },
+        situacao: { type: "string", enum: SITUACOES, description: DESCRICAO_SITUACOES },
+        busca: { type: "string", description: "Texto a procurar no título, no cliente ou no caso (nome ou número)" },
         incluir_concluidas: { type: "boolean", default: false },
       },
       additionalProperties: false,
@@ -41,15 +41,16 @@ const FERRAMENTAS = [
   {
     name: "criar_pendencia",
     title: "Criar pendência",
-    description: "Cria uma pendência nova na Central. Situação padrão: triagem.",
+    description: "Cria uma pendência nova na Central, opcionalmente ligada a um cliente (pelo nome; se não existir, o cliente é criado). Situação padrão: a_fazer.",
     inputSchema: {
       type: "object",
       properties: {
         titulo: { type: "string", description: "Ex.: 'Yasmin — proposta do carro'" },
         prazo: DATA,
         prazo_fatal: { type: "boolean", default: false },
-        situacao: { type: "string", enum: SITUACOES, default: "triagem" },
+        situacao: { type: "string", enum: SITUACOES, default: "a_fazer" },
         descricao: { type: "string" },
+        cliente: { type: "string", description: "Nome do cliente, ex.: 'Yasmin'" },
       },
       required: ["titulo"],
       additionalProperties: false,
@@ -59,7 +60,7 @@ const FERRAMENTAS = [
     name: "atualizar_pendencia",
     title: "Atualizar pendência",
     description:
-      "Muda a situação, o prazo ou o título de uma pendência, pelo id. Para descobrir o id, use listar_pendencias com busca.",
+      "Muda a situação, o prazo ou o título de uma pendência, pelo id. Para descobrir o id, use listar_pendencias com busca. Situações: " + DESCRICAO_SITUACOES,
     inputSchema: {
       type: "object",
       properties: {
@@ -123,8 +124,9 @@ async function chamarFerramenta(nome: string, a: any, chave: string) {
           p_titulo: a?.titulo,
           p_prazo: opc(a?.prazo),
           p_prazo_fatal: !!a?.prazo_fatal,
-          p_situacao: opc(a?.situacao) ?? "triagem",
+          p_situacao: opc(a?.situacao) ?? "a_fazer",
           p_descricao: opc(a?.descricao),
+          p_cliente: opc(a?.cliente),
         },
         chave,
       );
@@ -135,7 +137,7 @@ async function chamarFerramenta(nome: string, a: any, chave: string) {
         chave,
       );
     case "concluir_pendencia":
-      return rpc("neo_atualizar", { p_id: a?.id, p_situacao: "concluido" }, chave);
+      return rpc("neo_atualizar", { p_id: a?.id, p_situacao: "concluida" }, chave);
     default:
       throw new Error(`Ferramenta desconhecida: ${nome}`);
   }
@@ -152,7 +154,7 @@ async function responder(msg: JsonRpc, chave: string) {
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: "neo", title: "Neo · Central PinheiroAdv", version: "0.1.0" },
         instructions:
-          "Neo é o assistente da Central PinheiroAdv, sistema interno do Pinheiro Advogados (Marcelle Pinheiro). Situações: triagem, producao, aguardando, protocolar, concluido. Datas em AAAA-MM-DD, fuso de São Paulo.",
+          "Neo é o assistente da Central PinheiroAdv, sistema interno do Pinheiro Advogados (Marcelle Pinheiro). Situações: a_fazer, em_elaboracao, revisao_pendente, devolvida, pronta_protocolar, aguardando_cliente, aguardando, bloqueada, concluida. Datas em AAAA-MM-DD, fuso de São Paulo.",
       });
     case "ping":
       return ok({});
