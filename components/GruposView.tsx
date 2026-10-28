@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
-import { BANCAS } from "./ClientesListView";
+import { BANCAS, NovaEmpresaDrawer } from "./ClientesListView";
 
 export type Grupo = { id: string; nome: string; banca: string | null; descricao: string | null; ativo: boolean };
 type Empresa = { id: string; nome: string; nome_exibicao: string | null; cnpj_raiz: string | null; banca: string | null; grupo_id: string | null; ativo: boolean };
@@ -27,6 +27,7 @@ export default function GruposView() {
   const [verArquivados, setVerArquivados] = useState(false);
   const [loading, setLoading] = useState(true);
   const [novoGrupo, setNovoGrupo] = useState(false);
+  const [novoCliente, setNovoCliente] = useState(false);
   const [editando, setEditando] = useState<Grupo | null>(null);
   const [menu, setMenu] = useState<{ g: Grupo; x: number; y: number } | null>(null);
   const [excluir, setExcluir] = useState<Grupo | null>(null);
@@ -89,7 +90,10 @@ export default function GruposView() {
 
   if (loading) return <div className="p-6 text-xs" style={{ color: "var(--text-muted)" }}>Carregando grupos...</div>;
 
-  const totalEmpresas = empresas.filter((e) => e.grupo_id && e.ativo).length;
+  const totalEmpresas = empresas.filter((e) => e.ativo).length;
+  const qn = q.trim().toLowerCase();
+  const avulsas = empresas.filter((e) => !e.grupo_id && e.ativo !== verArquivados && (banca === "todas" || e.banca === banca)
+    && (!qn || [e.nome, e.nome_exibicao, e.cnpj_raiz].some((x) => (x ?? "").toLowerCase().includes(qn)))).sort((a, b) => (a.nome_exibicao || a.nome).localeCompare(b.nome_exibicao || b.nome));
   const totalCasos = resumo.reduce((s, r) => s + r.total, 0);
 
   return (
@@ -101,7 +105,10 @@ export default function GruposView() {
             {ativos.length} grupo{ativos.length === 1 ? "" : "s"} &middot; {totalEmpresas} empresa{totalEmpresas === 1 ? "" : "s"} &middot; {totalCasos} caso{totalCasos === 1 ? "" : "s"}
           </div>
         </div>
-        <button onClick={() => setNovoGrupo(true)} className="px-3 py-1.5 rounded text-xs font-medium text-on-acao" style={{ background: "var(--acao)" }}>+ Novo grupo</button>
+        <div className="flex gap-2">
+          <button onClick={() => setNovoGrupo(true)} className="px-3 py-1.5 rounded-sm text-xs font-medium border border-line text-ink">+ Novo grupo</button>
+          <button onClick={() => setNovoCliente(true)} className="px-3 py-1.5 rounded-sm text-xs font-medium text-on-acao" style={{ background: "var(--acao)" }}>+ Novo cliente</button>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -164,14 +171,35 @@ export default function GruposView() {
         </table>
       </div>
 
+      {avulsas.length > 0 && (
+        <div className="mt-6">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-bordo mb-2">Clientes sem grupo</div>
+          <div className="rounded-md border overflow-hidden" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+            <table className="w-full text-[12.5px]">
+              <tbody>
+                {avulsas.map((e) => (
+                  <tr key={e.id} onClick={() => router.push(`/clientes/${e.id}`)} className="cursor-pointer border-b last:border-b-0 hover:bg-surface-mist" style={{ borderColor: "var(--border)" }}>
+                    <td className="px-3.5 py-2.5 font-semibold" style={{ color: "var(--text-primary)", width: "50%" }}>{e.nome_exibicao || e.nome}{e.cnpj_raiz && <span className="block text-[10px] font-normal" style={{ color: "var(--text-muted)" }}>{e.cnpj_raiz}</span>}</td>
+                    <td className="px-3.5 py-2.5" style={{ color: "var(--text-secondary)" }}>{e.banca ? BANCAS[e.banca]?.nome ?? e.banca : "—"}</td>
+                    <td className="px-3.5 py-2.5 tabular-nums" style={{ color: "var(--text-secondary)" }}>{casosPorEmpresa[e.id] ?? 0} caso{(casosPorEmpresa[e.id] ?? 0) === 1 ? "" : "s"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {novoCliente && <NovaEmpresaDrawer onClose={() => setNovoCliente(false)} onSaved={(id) => { setNovoCliente(false); if (id) router.push(`/clientes/${id}`); else carregar(); }} supabase={supabase} />}
+
       {menu && (() => { const vazio = (empsPorGrupo[menu.g.id] || []).length === 0; return (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setMenu(null)} />
           <div className="fixed z-40 w-56 rounded-md border shadow-2xl py-1 text-xs" style={{ top: menu.y + 4, left: menu.x - 224, background: "var(--bg-surface)", borderColor: "var(--border)" }}>
             <button onClick={() => { setMenu(null); router.push(`/grupo/${menu.g.id}`); }} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125" style={{ color: "var(--text-primary)" }}><span className="w-4 text-center" style={{ color: "var(--text-muted)" }}>&rarr;</span>Abrir</button>
             <button onClick={() => { setEditando(menu.g); setMenu(null); }} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125" style={{ color: "var(--text-primary)" }}><span className="w-4 text-center" style={{ color: "var(--text-muted)" }}>&#x270e;</span>Renomear / editar</button>
-            <button onClick={() => { const g = menu.g; setMenu(null); arquivar(g); }} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125" style={{ color: "var(--text-primary)" }}><span className="w-4 text-center" style={{ color: "var(--text-muted)" }}>&#x1F5C4;</span>{menu.g.ativo ? "Arquivar" : "Desarquivar"}</button>
-            <button disabled={!vazio} title={vazio ? "" : "Mova ou arquive as empresas antes de excluir o grupo"} onClick={() => { const g = menu.g; setMenu(null); setSenha(""); setErroSenha(null); setExcluir(g); }} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125 border-t disabled:opacity-40 disabled:cursor-not-allowed" style={{ color: "var(--alerta)", borderColor: "var(--border)" }}><span className="w-4 text-center">&#x1F5D1;</span>Excluir{vazio ? "" : " (grupo não está vazio)"}</button>
+            <button onClick={() => { const g = menu.g; setMenu(null); arquivar(g); }} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125" style={{ color: "var(--text-primary)" }}><span className="w-4 text-center" style={{ color: "var(--text-muted)" }}>·</span>{menu.g.ativo ? "Arquivar" : "Desarquivar"}</button>
+            <button disabled={!vazio} title={vazio ? "" : "Mova ou arquive as empresas antes de excluir o grupo"} onClick={() => { const g = menu.g; setMenu(null); setSenha(""); setErroSenha(null); setExcluir(g); }} className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125 border-t disabled:opacity-40 disabled:cursor-not-allowed" style={{ color: "var(--alerta)", borderColor: "var(--border)" }}><span className="w-4 text-center">!</span>Excluir{vazio ? "" : " (grupo não está vazio)"}</button>
           </div>
         </>
       ); })()}
@@ -183,7 +211,7 @@ export default function GruposView() {
         <>
           <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)" }} onClick={() => !apagando && setExcluir(null)} />
           <div className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[92vw] rounded-lg border shadow-2xl p-5" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
-            <div className="flex items-start gap-3"><div className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: "var(--alerta-tint)", color: "var(--alerta)" }}>&#x1F5D1;</div>
+            <div className="flex items-start gap-3"><div className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: "var(--alerta-tint)", color: "var(--alerta)" }}>!</div>
               <div className="flex-1"><h3 className="text-[14px] font-semibold" style={{ color: "var(--text-primary)" }}>Excluir grupo?</h3>
                 <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "var(--text-secondary)" }}><strong style={{ color: "var(--text-primary)" }}>{excluir.nome}</strong> será removido permanentemente. O grupo está vazio, nenhuma empresa ou caso será afetado.</p>
                 <label className={labelCls + " mt-4"} style={{ color: "var(--text-secondary)" }}>Confirme com sua senha de acesso</label>

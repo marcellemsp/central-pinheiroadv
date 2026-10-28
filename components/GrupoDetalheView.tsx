@@ -223,7 +223,7 @@ export default function GrupoDetalheView({ grupoId }: { grupoId: string }) {
             <button onClick={() => { arquivar(menu.e); setMenu(null); }}
               className="w-full text-left px-3 py-2 flex items-center gap-2.5 hover:brightness-125"
               style={{ color: "var(--text-primary)", background: "transparent" }}>
-              <span className="w-4 text-center" style={{ color: "var(--text-muted)" }}>&#x1F5C4;</span>{menu.e.ativo ? "Arquivar" : "Desarquivar"}
+              <span className="w-4 text-center" style={{ color: "var(--text-muted)" }}>·</span>{menu.e.ativo ? "Arquivar" : "Desarquivar"}
             </button>
           </div>
         </>

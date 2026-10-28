@@ -233,7 +233,7 @@ export function NovaEmpresaDrawer({ inicial, onClose, onSaved, supabase }: { ini
   const [nome, setNome] = useState(inicial?.nome ?? "");
   const [nomeExib, setNomeExib] = useState(inicial?.nome_exibicao ?? "");
   const [cnpj, setCnpj] = useState(inicial?.cnpj_raiz ?? "");
-  const [banca, setBanca] = useState<string>(inicial?.banca ?? "");
+  const [banca, setBanca] = useState<string>(inicial?.banca ?? Object.keys(CARTEIRAS)[0] ?? "");
   const [tags, setTags] = useState<string[]>(inicial?.tags ?? []);
   const [tagInput, setTagInput] = useState("");
   const [contatos, setContatos] = useState<Contato[]>(inicial?.contatos?.length ? inicial.contatos : [{ nome: "", cargo: "", email: "" }]);
@@ -244,7 +244,7 @@ export function NovaEmpresaDrawer({ inicial, onClose, onSaved, supabase }: { ini
 
   const cnpjDigits = cnpj.replace(/\D/g, "");
   const ehCpf = cnpjDigits.length === 11;
-  const docOk = cnpjDigits.length === 8 || ehCpf;
+  const docOk = cnpjDigits.length === 0 || cnpjDigits.length === 8 || ehCpf;
   const cnpjFmt = cnpjDigits.length === 8 ? `${cnpjDigits.slice(0, 2)}.${cnpjDigits.slice(2, 5)}.${cnpjDigits.slice(5, 8)}` : ehCpf ? `${cnpjDigits.slice(0, 3)}.${cnpjDigits.slice(3, 6)}.${cnpjDigits.slice(6, 9)}-${cnpjDigits.slice(9, 11)}` : cnpj;
   const valido = nome.trim().length > 1 && docOk && banca !== "";
 
@@ -260,7 +260,7 @@ export function NovaEmpresaDrawer({ inicial, onClose, onSaved, supabase }: { ini
     const dados = {
       nome: nome.trim(),
       nome_exibicao: nomeExib.trim() || null,
-      cnpj_raiz: cnpjFmt,
+      cnpj_raiz: cnpjDigits.length ? cnpjFmt : null,
       banca,
       tags,
       contatos: contatos.filter(c => c.nome.trim() || c.email.trim()),
